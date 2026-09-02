@@ -1,0 +1,27 @@
+[project]
+name = "qianxing-helper"
+version = "0.1.0"
+description = "千星奇域助手（原神）- 基于 OCR 屏幕识别的自动化脚本"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "PyQt5==5.15.11",
+    "pyqt5-qt5==5.15.2",
+    "keyboard>=0.13.5",
+    "rapidocr_onnxruntime>=1.3.0",
+    "onnxruntime==1.20.1",
+    "Pillow>=9.0",
+    "pywin32>=311",
+    "pyautogui>=0.9.54",
+]
+
+[[tool.uv.index]]
+url = "https://pypi.tuna.tsinghua.edu.cn/simple"
+default = true
+
+[tool.ruff]
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP"]
+ignore = ["E501", "E402"]

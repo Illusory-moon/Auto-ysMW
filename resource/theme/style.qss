@@ -1,0 +1,81 @@
+/* 千星奇域助手 - 浅色皮肤（白色按钮，参考示例项目） */
+QMainWindow, QDialog {
+    background-color: #f5f5f5;
+}
+QWidget {
+    color: #1f1f1f;
+}
+QLabel {
+    color: #333333;
+}
+
+/* ---------- 标签页（顶部） ---------- */
+QTabWidget::pane {
+    border: 1px solid #c0c0c0;
+    border-radius: 6px;
+    background: #ffffff;
+}
+QTabBar::tab {
+    background: #e6e6e6;
+    color: #333333;
+    padding: 7px 20px;
+    border: 1px solid #c0c0c0;
+    border-bottom: none;
+    border-top-left-radius: 6px;
+    border-top-right-radius: 6px;
+    margin-right: 2px;
+}
+QTabBar::tab:selected {
+    background: #ffffff;
+    color: #000000;
+}
+QTabBar::tab:hover {
+    background: #eeeeee;
+}
+
+/* ---------- 按钮（统一白色） ---------- */
+QPushButton {
+    background: #ffffff;
+    border: 1px solid #c8c8c8;
+    border-radius: 6px;
+    color: #1f1f1f;
+    padding: 6px 14px;
+}
+QPushButton:hover {
+    background: #f2f2f2;
+    border-color: #b0b0b0;
+}
+QPushButton:pressed {
+    background: #e3e3e3;
+}
+QPushButton:disabled {
+    color: #9a9a9a;
+    background: #f7f7f7;
+    border-color: #dddddd;
+}
+
+/* ---------- 日志区 ---------- */
+QTextEdit {
+    background: #ffffff;
+    color: #1f1f1f;
+    border: 1px solid #c0c0c0;
+    border-radius: 6px;
+}
+
+/* ---------- 下拉框 ---------- */
+QComboBox {
+    background: #ffffff;
+    border: 1px solid #c8c8c8;
+    border-radius: 6px;
+    padding: 5px 10px;
+    color: #1f1f1f;
+}
+QComboBox:hover {
+    border-color: #a0a0a0;
+}
+QComboBox QAbstractItemView {
+    background: #ffffff;
+    color: #1f1f1f;
+    selection-background-color: #cfe4ff;
+    selection-color: #000000;
+}
