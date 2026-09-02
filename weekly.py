@@ -9,8 +9,9 @@ import os
 
 from app import logger, ops
 
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-MOVEMENT_PATH = os.path.join(BASE_DIR, "action", "movement.json")
+from app.paths import app_dir
+
+MOVEMENT_PATH = os.path.join(app_dir(), "action", "movement.json")
 
 # ========================= 可调参数 =========================
 LOOP_TIMES = 16

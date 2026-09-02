@@ -4,8 +4,9 @@ import os
 from PyQt5.QtGui import QFont, QFontDatabase
 from PyQt5.QtWidgets import QApplication
 
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-FONT_DIR = os.path.join(BASE_DIR, "resource", "font")
+from .paths import resource_dir
+
+FONT_DIR = os.path.join(resource_dir(), "resource", "font")
 
 # 兜底字体（项目内没有自定义字体时的回退）
 _FALLBACKS = ["Microsoft YaHei", "SimHei", "Microsoft YaHei UI", "Segoe UI", "Arial"]

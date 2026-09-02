@@ -27,7 +27,8 @@ def _is_admin():
 
 def _run_as_admin():
     try:
-        ctypes.windll.shell32.ShellExecuteW(None, "runas", sys.executable, __file__, None, 1)
+        params = None if getattr(sys, "frozen", False) else __file__
+        ctypes.windll.shell32.ShellExecuteW(None, "runas", sys.executable, params, None, 1)
         return True
     except Exception:
         return False

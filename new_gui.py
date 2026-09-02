@@ -29,8 +29,9 @@ from app.hotkey import register as register_hotkeys
 from app.ocr import scan_text
 from app.task import TaskRunner
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-STYLE_PATH = os.path.join(BASE_DIR, "resource", "theme", "style.qss")
+from app.paths import resource_dir
+
+STYLE_PATH = os.path.join(resource_dir(), "resource", "theme", "style.qss")
 
 
 class MainWindow(QMainWindow):
@@ -247,10 +248,12 @@ def is_admin():
 
 
 def run_as_admin():
-    """以管理员权限重新拉起本脚本，返回是否成功。"""
+    """以管理员权限重新拉起本程序，返回是否成功。"""
     try:
+        # 打包后 exe 没有脚本参数，无需传 __file__
+        params = None if getattr(sys, "frozen", False) else __file__
         ctypes.windll.shell32.ShellExecuteW(
-            None, "runas", sys.executable, __file__, None, 1
+            None, "runas", sys.executable, params, None, 1
         )
         return True
     except Exception:
