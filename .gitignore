@@ -2,6 +2,7 @@
 __pycache__/
 *.pyc
 config/settings.json
+HANDOFF.md
 build/
 dist/
 *.spec

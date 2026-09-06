@@ -127,24 +127,105 @@ def wait_pattern(pattern, box=None, timeout=30.0, stop_event=None, interval=0.5,
         time.sleep(interval)
 
 
-def wait_text(text, box=None, timeout=15.0, stop_event=None, interval=0.5, margin=40):
-    """轮询 OCR，直到 box 区域内出现 text。
+def _normalize_texts(text):
+    """把 text（str 或 list/tuple）统一成列表，方便遍历。"""
+    if isinstance(text, str):
+        return [text]
+    return list(text)
+
+
+def wait_any_text(text, box=None, timeout=15.0, stop_event=None, interval=0.5, margin=40):
+    """轮询 OCR，直到 box 区域内出现 text（str 或列表）中任意一个。
 
     box 为窗口相对坐标（单个或列表，任一命中即可）；缺省扫描整个窗口。
     margin 会在 box 四边外扩一圈，避免窄框裁掉文字导致识别失败。
-    返回是否出现。
+    返回命中的第一个文本（str）；超时或停止返回 None。
     """
+    texts = _normalize_texts(text)
     regions = _box_regions(box, _game_rect(), margin)
 
     start = time.time()
     while True:
         if stop_event is not None and stop_event.is_set():
-            return False
+            return None
         for region in regions:
             lines = scan_text(region=region)
-            if any(text in line.text for line in lines):
-                logger.info(f"识别到：{text}")
-                return True
+            for line in lines:
+                for t in texts:
+                    if t in line.text:
+                        logger.info(f"识别到：{t}")
+                        return t
         if time.time() - start >= timeout:
-            return False
+            return None
+        time.sleep(interval)
+
+
+def wait_text(text, box=None, timeout=15.0, stop_event=None, interval=0.5, margin=40):
+    """轮询 OCR，直到 box 区域内出现 text（str 或列表）中任意一个。
+
+    box 为窗口相对坐标（单个或列表，任一命中即可）；缺省扫描整个窗口。
+    margin 会在 box 四边外扩一圈，避免窄框裁掉文字导致识别失败。
+    返回是否出现。
+    """
+    return wait_any_text(text, box, timeout, stop_event, interval, margin) is not None
+
+
+def locate_text(text, box=None, timeout=15.0, stop_event=None, interval=0.5, margin=40):
+    """在 box 区域内找到包含 text（str 或列表）的文字行，返回其【窗口相对坐标框】。
+
+    box 为窗口相对坐标（单个或列表，任一命中即可）；缺省扫描整个窗口。
+    margin 会在 box 四边外扩一圈，避免窄框裁掉文字导致识别失败。
+    OCR 返回的坐标是相对截取区域的，本函数会换算回窗口相对坐标。
+    返回 (x1, y1, x2, y2)；找不到或停止返回 None。
+    """
+    texts = _normalize_texts(text)
+    left, top, right, bottom = _game_rect()
+    regions = _box_regions(box, (left, top, right, bottom), margin)
+
+    start = time.time()
+    while True:
+        if stop_event is not None and stop_event.is_set():
+            return None
+        for region in regions:
+            rx1, ry1, _, _ = region
+            off_x = rx1 - left  # region 左上角相对窗口的横向偏移
+            off_y = ry1 - top   # region 左上角相对窗口的纵向偏移
+            lines = scan_text(region=region)
+            for line in lines:
+                for t in texts:
+                    if t in line.text:
+                        bx1, by1, bx2, by2 = line.box
+                        win_box = (bx1 + off_x, by1 + off_y, bx2 + off_x, by2 + off_y)
+                        logger.info(f"定位到：{t} @ {win_box}")
+                        return win_box
+        if time.time() - start >= timeout:
+            return None
+        time.sleep(interval)
+
+
+def read_uid(box, timeout=5.0, stop_event=None, interval=0.5, margin=40):
+    """扫描 box 区域（右下角 UID），提取 UID 数字。返回 int 或 None。
+
+    box 为窗口相对坐标（单个或列表，任一命中即可）。
+    用于按 UID 判断官服 / B服。
+    """
+    import re
+
+    uid_re = re.compile(r"(\d{6,})")
+    left, top, right, bottom = _game_rect()
+    regions = _box_regions(box, (left, top, right, bottom), margin)
+
+    start = time.time()
+    while True:
+        if stop_event is not None and stop_event.is_set():
+            return None
+        for region in regions:
+            lines = scan_text(region=region)
+            for line in lines:
+                m = uid_re.search(line.text)
+                if m:
+                    logger.info(f"识别到 UID：{m.group(1)}")
+                    return int(m.group(1))
+        if time.time() - start >= timeout:
+            return None
         time.sleep(interval)

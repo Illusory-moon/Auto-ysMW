@@ -1,6 +1,6 @@
 [project]
 name = "qianxing-helper"
-version = "0.1.0"
+version = "1.1.0"
 description = "千星奇域助手（原神）- 基于 OCR 屏幕识别的自动化脚本"
 readme = "README.md"
 requires-python = ">=3.12"
