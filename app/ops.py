@@ -101,30 +101,49 @@ def _box_regions(box, rect, margin=40):
     return regions
 
 
-def wait_pattern(pattern, box=None, timeout=30.0, stop_event=None, interval=0.5, margin=40):
+def wait_pattern(pattern, box=None, timeout=30.0, stop_event=None, interval=0.5, margin=40,
+                 full_window_fallback=False):
     """轮询 OCR，直到 box 区域内出现匹配正则 pattern 的文字。
 
     用于识别「血条 10000/10000」这类数值会变的 UI。
     box 为窗口相对坐标（单个或列表）；缺省扫描整个窗口。返回是否出现。
+    full_window_fallback：局部未命中时整窗识别，仍按指定区域过滤文字位置。
     """
     import re
 
     regex = re.compile(pattern)
-    regions = _box_regions(box, _game_rect(), margin)
-
-    start = time.time()
+    start = time.monotonic()
     while True:
         if stop_event is not None and stop_event.is_set():
             return False
+        rect = _game_rect()
+        regions = _box_regions(box, rect, margin)
         for region in regions:
             lines = scan_text(region=region)
+            if stop_event is not None and stop_event.is_set():
+                return False
             for line in lines:
                 if regex.search(line.text):
                     logger.info(f"识别到：{line.text}（匹配 {pattern}）")
                     return True
-        if time.time() - start >= timeout:
+        if full_window_fallback and box is not None:
+            # OCR 的缩放和文字检测会随裁图范围变化，整窗结果需换回屏幕坐标过滤。
+            lines = scan_text(region=rect)
+            if stop_event is not None and stop_event.is_set():
+                return False
+            for line in lines:
+                x1, y1, x2, y2 = line.box
+                cx = rect[0] + (x1 + x2) / 2
+                cy = rect[1] + (y1 + y2) / 2
+                if regex.search(line.text) and any(
+                    left <= cx <= right and top <= cy <= bottom
+                    for left, top, right, bottom in regions
+                ):
+                    logger.info(f"整窗兜底识别到：{line.text} @ {line.box}（匹配 {pattern}）")
+                    return True
+        if time.monotonic() - start >= timeout:
             return False
-        time.sleep(interval)
+        wait(interval, stop_event)
 
 
 def _normalize_texts(text):

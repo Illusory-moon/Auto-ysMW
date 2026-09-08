@@ -3,7 +3,6 @@
 依赖 rapidocr_onnxruntime，返回文字及其在屏幕上的坐标。
 """
 from dataclasses import dataclass
-from typing import List, Optional, Tuple
 
 from PIL import ImageGrab
 
@@ -13,7 +12,7 @@ class TextLine:
     """一条识别结果。box 为 (左上x, 左上y, 右下x, 右下y)。"""
 
     text: str
-    box: Tuple[int, int, int, int]
+    box: tuple[int, int, int, int]
     score: float
 
 
@@ -43,12 +42,12 @@ def _get_engine():
     return _engine
 
 
-def scan_text(region=None) -> List[TextLine]:
+def scan_text(region=None) -> list[TextLine]:
     """识别屏幕指定区域（默认全屏）上的文字，返回带坐标的列表。"""
     image = capture(region)
     bgr = _to_bgr(image)
     result, _ = _get_engine()(bgr)
-    lines: List[TextLine] = []
+    lines: list[TextLine] = []
     if not result:
         return lines
     for box, text, score in result:

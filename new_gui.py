@@ -27,9 +27,8 @@ from app import config, fonts, logger
 from app.focus import focus_genshin, game_client_rect
 from app.hotkey import register as register_hotkeys
 from app.ocr import scan_text
-from app.task import TaskRunner
-
 from app.paths import resource_dir
+from app.task import TaskRunner
 
 STYLE_PATH = os.path.join(resource_dir(), "resource", "theme", "style.qss")
 
